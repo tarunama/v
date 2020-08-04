@@ -1881,11 +1881,11 @@ V has a built-in ORM (object-relational mapping) which supports SQLite, and will
 
 V's ORM provides a number of benefits:
 
-- One syntax for all SQL dialects. (Migrating between databases becomes much easier.)
-- Queries are constructed using V's syntax. (There's no need to learn another syntax.)
-- Safety. (All queries are automatically sanitised to prevent SQL injection.)
-- Compile time checks. (This prevents typos which can only be caught during runtime.)
-- Readability and simplicity. (You don't need to manually parse the results of a query and then manually construct objects from the parsed results.)
+* One syntax for all SQL dialects. (Migrating between databases becomes much easier.)
+* Queries are constructed using V's syntax. (There's no need to learn another syntax.)
+* Safety. (All queries are automatically sanitised to prevent SQL injection.)
+* Compile time checks. (This prevents typos which can only be caught during runtime.)
+* Readability and simplicity. (You don't need to manually parse the results of a query and then manually construct objects from the parsed results.)
 
 ```v
 struct Customer { // struct name has to be the same as the table name (for now)
@@ -1972,6 +1972,7 @@ You can sort on column 3 (average time per function) using:
 `sort -n -k3 profile.txt|tail`
 
 You can also use stopwatches to measure just portions of your code explicitly:
+
 ```v
 import time
 fn main(){
@@ -1980,9 +1981,9 @@ fn main(){
     println('Greeting the world took: ${sw.elapsed().nanoseconds()}ns')
 }
 ```
-
+## Advanced Topics
 # Advanced Topics
-
+### Memory-unsafe code
 ## Memory-unsafe code
 
 Sometimes for efficiency you may want to write low-level code that can potentially
@@ -2027,7 +2028,7 @@ finding the cause: look at the `unsafe` blocks (and how they interact with
 surrounding code).
 
 * Note: This is work in progress.
-
+### Calling C functions from V
 ## Calling C functions from V
 
 ```v
@@ -2084,10 +2085,10 @@ fn main() {
 ### #flag
 
 Add `#flag` directives to the top of your V files to provide C compilation flags like:
-
-- `-I` for adding C include files search paths
-- `-l` for adding C library names that you want to get linked
-- `-L` for adding C library files search paths
+* `-I` for adding C include files search paths
+* `-l` for adding C library names that you want to get linked
+* `-L` for adding C library files search paths
+* `-D` for setting compile time variables
 - `-D` for setting compile time variables
 
 You can use different flags for different targets. Currently the `linux`, `darwin` , `freebsd`, and `windows` flags are supported.
@@ -2111,6 +2112,7 @@ You can also include C code directly in your V module. For example, let's say th
 
 * Put a v.mod file inside the toplevel folder of your module (if you
 created your module with `v new` you already have v.mod file). For
+
 example:
 ```v
 Module {
@@ -2120,6 +2122,7 @@ Module {
 	dependencies: []
 }
 ```
+
 
 
 * Add these lines to the top of your module:
@@ -2154,10 +2157,10 @@ return pointers to internal libc memory), you can use `cstring_to_vstring(cstrin
 
 * `-cg` - produces a less optimized executable with more debug information in it.
 * `-showcc` - prints the C command that is used to build the program.
-
-V has these types for easier interoperability with C:
-
-- `voidptr` for C's `void*`,
+* `voidptr` for C's `void*`,
+* `byteptr` for C's `byte*` and
+* `charptr` for C's `char*`.
+* `&charptr` for C's `char**`
 - `byteptr` for C's `byte*` and
 - `charptr` for C's `char*`.
 - `&charptr` for C's `char**`
@@ -2207,21 +2210,23 @@ an OS or a `-debug` compilation option.
 
 
 ## Compile time pseudo variables
-
-V also gives your code access to a set of pseudo string variables, that are substituted at compile time:
-
-- `@FN` => replaced with the name of the current V function
-- `@MOD` => replaced with the name of the current V module
-- `@STRUCT` => replaced with the name of the current V struct
-- `@FILE` => replaced with the path of the V source file
-- `@LINE` => replaced with the V line number where it appears (as a string).
-- `@COLUMN` => replaced with the column where it appears (as a string).
+* `@FN` => replaced with the name of the current V function
+* `@MOD` => replaced with the name of the current V module
+* `@STRUCT` => replaced with the name of the current V struct
+* `@FILE` => replaced with the path of the V source file
+* `@LINE` => replaced with the V line number where it appears (as a string).
+* `@COLUMN` => replaced with the column where it appears (as a string).
+* `@VEXE` => replaced with the path to the V compiler
+* `@VHASH`  => replaced with the shortened commit hash of the V compiler (as a string).
+* `@VMOD_FILE` => replaced with the contents of the nearest v.mod file (as a string).
 - `@VEXE` => replaced with the path to the V compiler
 - `@VHASH`  => replaced with the shortened commit hash of the V compiler (as a string).
+
 - `@VMOD_FILE` => replaced with the contents of the nearest v.mod file (as a string).
 
 That allows you to do the following example, useful while debugging/logging/tracing your code:
 ```v
+
 eprintln( 'file: ' + @FILE + ' | line: ' + @LINE + ' | fn: ' + @MOD + '.' + @FN)
 ```
 
@@ -2321,10 +2326,10 @@ fn main() {
 Operator overloading goes against V's philosophy of simplicity and predictability. But since
 scientific and graphical applications are among V's domains, operator overloading is an important feature to have
 in order to improve readability:
-
-`a.add(b).add(c.mul(d))` is a lot less readable than `a + b + c * d`.
-
-To improve safety and maintainability, operator overloading is limited:
+* It's only possible to overload `+, -, *, /, %` operators.
+* Calling other functions inside operator functions is not allowed.
+* Operator functions can't modify their arguments.
+* Both arguments must have the same type (just like with all operators in V).
 
 - It's only possible to overload `+, -, *, /, %` operators.
 - Calling other functions inside operator functions is not allowed.
@@ -2359,9 +2364,9 @@ Let's create a simple program `test.cpp` first:
 #include <iostream>
 
 int main() {
-        std::vector<std::string> s;
-        s.push_back("V is ");
-        s.push_back("awesome");
+}
+```
+
         std::cout << s.size() << std::endl;
         return 0;
 * If you plan to develop that code base, you now have everything in one language, which is much safer and easier to develop in than C.
@@ -2381,9 +2386,9 @@ fn main {
 An online C/C++ to V translator is coming soon.
 
 When should you translate C code and when should you simply call C code from V?
-
-If you have well-written, well-tested C code, then of course you can always simply call this C code from V.
-
+* If you plan to develop that code base, you now have everything in one language, which is much safer and easier to develop in than C.
+* Cross-compilation becomes a lot easier. You don't have to worry about it at all.
+* No more build flags and include files either.
 Translating it to V gives you several advantages:
 
 - If you plan to develop that code base, you now have everything in one language, which is much safer and easier to develop in than C.
@@ -2517,11 +2522,10 @@ fn bar() {
 [typedef]
 struct C.Foo { }
 
-// Used in Win32 API code when you need to pass callback function
-[windows_stdcall]
+## Appendices
 fn C.DefWindowProc(hwnd int, msg int, lparam int, wparam int)
 ```
-
+### Appendix I: Keywords
 
 # Appendices
 
@@ -2557,8 +2561,9 @@ or
 pub
 return
 struct
+
 true
-type
+### Appendix II: Operators
 unsafe
 ```
 See also [Types](#types).
