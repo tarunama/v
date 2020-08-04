@@ -102,6 +102,7 @@ fn main() {
     println('hello world')
 }
 ```
+
 Save that snippet into a file `hello.v` . Now do: `v run hello.v` .
 
 > That is assuming you have symlinked your V with `v symlink`, as described
@@ -302,7 +303,7 @@ in V must have values of the same type on both sides. A small primitive type
 on one side can be automatically promoted if it fits
 completely into the data range of the type on the other side.
 These are the allowed possibilities:
-
+```rs
 ```
    i8 → i16 → int → i64
                   ↘     ↘
@@ -311,6 +312,7 @@ These are the allowed possibilities:
  byte → u16 → u32 → u64 ⬎
       ↘     ↘     ↘      ptr
    i8 → i16 → int → i64 ⬏
+
 ```
 An `int` value for example can be automatically promoted to `f64`
 or `i64` but not to `f32` or `u32`. (`f32` would mean precision
@@ -426,7 +428,8 @@ Assigning floating point numbers works the same way:
 ```v
 f := 1.0
 f1 := f64(3.14)
-f2 := f32(3.14)
+
+If you do not specify the type explicitly, by default float literals.
 ```
 If you do not specify the type explicitly, by default float literals 
 will have the type of `f64`.
@@ -499,6 +502,7 @@ mut numbers := []int{ cap: 1000 }
 println(numbers.len) // 0
 // Now appending elements won't reallocate
 for i in 0 .. 1000 {
+
     numbers << i
 }
 ```
@@ -570,6 +574,7 @@ import time { Time }
 
 ### Module import aliasing
 
+
 Any imported module name can be aliased using the `as` keyword:
 
 NOTE: this example will not compile unless you have created `mymod/sha256.v`
@@ -629,7 +634,9 @@ s := if num % 2 == 0 {
     'even'
 }
 else {
-    'odd'
+### Is check
+
+
 }
 println(s) // "odd"
 ```
@@ -646,7 +653,8 @@ struct Xyz {
 type Alphabet = Abc | Xyz
 
 x := Alphabet(Abc{'test'}) // sum type
-if x is Abc {
+
+```v
     // x is automatically castet to Abc and can be used here
     println(x)
 }
@@ -709,6 +717,7 @@ If an index is required, an alternative form `for index, value in arr` can be us
 
 Note, that the value is read-only. If you need to modify the array while looping, you have to use indexing:
 
+
 ```v
 mut numbers := [0, 1, 2]
 for i, _ in numbers {
@@ -719,6 +728,7 @@ println(numbers) // [1, 2, 3]
 When an identifier is just a single underscore, it is ignored.
 
 #### Map `for`
+
 
 ```v
 m := {'one':1, 'two':2}
@@ -740,6 +750,7 @@ for key, _ in m {
 for _, value in m {
     println(value)  // Output: 1
 }                   //         2
+
 ```
 
 #### Range `for`
@@ -985,7 +996,7 @@ fn new_button(c ButtonConfig) &Button {
     return &Button{
         width: c.width
 	height: c.height
-	text: c.text
+```v
     }
 }
 
@@ -1025,6 +1036,7 @@ __global:
 ```
 
 For example, here's the `string` type defined in the `builtin` module:
+
 
 ```v
 struct string {
@@ -1457,8 +1469,9 @@ fn land(w World) {
         Mars {
             // light atmosphere
             open_parachutes(3)
-        }
-        Venus {
+
+* the shadowed match variable
+* using `as` to specify a variable name
             // heavy atmosphere
             open_parachutes(1)
         }
@@ -1488,6 +1501,7 @@ fn pass_time(w World) {
     match w as var {
         Mars  { var.shiver() }
         Venus { var.sweat() }
+
         else {
             // w is of type World
             assert w is Moon
@@ -1610,6 +1624,7 @@ fn do_something(s string) ?string {
     return error('invalid string') // Could be `return none` as well
 }
 
+
 a := do_something('foo') or { 'default' } // a will be 'foo'
 b := do_something('bar') or { 'default' } // b will be 'default'
 ```
@@ -1637,6 +1652,7 @@ struct Repo<T> {
 fn new_repo<T>(db DB) Repo<T> {
     return Repo<T>{db: db}
 }
+
 
 // This is a generic function. V will generate it for every type it's used with.
 fn (r Repo<T>) find_by_id(id int) ?T {
@@ -1849,11 +1865,11 @@ fn test() []int {
     number := 7 // stack variable
     user := User{} // struct allocated on stack
     numbers := [1, 2, 3] // array allocated on heap, will be freed as the function exits
-    println(number)
-    println(user)
-    println(numbers)
-    numbers2 := [4, 5, 6] // array that's being returned, won't be freed here
-    return numbers2
+* One syntax for all SQL dialects. (Migrating between databases becomes much easier.)
+* Queries are constructed using V's syntax. (There's no need to learn another syntax.)
+* Safety. (All queries are automatically sanitised to prevent SQL injection.)
+* Compile time checks. (This prevents typos which can only be caught during runtime.)
+* Readability and simplicity. (You don't need to manually parse the results of a query and then manually construct objects from the parsed results.)
 }
 ```
 
@@ -1940,6 +1956,7 @@ A vfmt run is usually pretty cheap (takes <30ms).
 
 Always run `v fmt -w file.v` before pushing your code.
 
+
 ### Profiling
 
 V has good support for profiling your programs: `v -profile profile.txt run file.v`
@@ -1947,9 +1964,9 @@ That will produce a profile.txt file, which you can then analyze.
 
 The generated profile.txt file will have lines with 4 columns:
 a) how many times a function was called
-b) how much time in total a function took (in ms)
+## Advanced Topics
 c) how much time on average, a call to a function took (in ns)
-d) the name of the v function
+### Memory-unsafe code
 
 You can sort on column 3 (average time per function) using:
 `sort -n -k3 profile.txt|tail`
@@ -1994,7 +2011,7 @@ unsafe {
     p[1] = `i`
 }
 p++ // Error: pointer arithmetic is only allowed in `unsafe` blocks
-unsafe {
+### Calling C functions from V
     p++ // OK
 }
 assert *p == `i`
@@ -2051,10 +2068,10 @@ fn main() {
     C.sqlite3_step(stmt)
     nr_users := C.sqlite3_column_int(stmt, 0)
     C.sqlite3_finalize(stmt)
-    println('There are $nr_users users in the database.')
-    //
-    error_msg := charptr(0)
-    query_all_users := 'select * from users'
+* `-I` for adding C include files search paths
+* `-l` for adding C library names that you want to get linked
+* `-L` for adding C library files search paths
+* `-D` for setting compile time variables
     rc := C.sqlite3_exec(db, query_all_users.str, my_callback, 7, &error_msg)
     if rc != C.SQLITE_OK {
         eprintln( cstring_to_vstring(error_msg) )
@@ -2075,6 +2092,7 @@ Add `#flag` directives to the top of your V files to provide C compilation flags
 
 You can use different flags for different targets. Currently the `linux`, `darwin` , `freebsd`, and `windows` flags are supported.
 
+
 NB: Each flag must go on its own line (for now)
 
 ```v
@@ -2085,9 +2103,11 @@ NB: Each flag must go on its own line (for now)
 #flag linux -DIMGUI_IMPL_API=
 ```
 
+
 ### Including C code
 
 You can also include C code directly in your V module. For example, let's say that your C code is located in a folder named 'c' inside your module folder. Then:
+
 
 * Put a v.mod file inside the toplevel folder of your module (if you
 created your module with `v new` you already have v.mod file). For
@@ -2117,10 +2137,10 @@ The instructions above will make V look for an compiled .o file in your module `
 If V finds it, the .o file will get linked to the main executable, that used the module.
 If it does not find it, V assumes that there is a `@VROOT/c/implementation.c` file,
 and tries to compile it to a .o file, then will use that.
-
-This allows you to have C code, that is contained in a V module, so that its distribution is easier.
-You can see a complete minimal example for using C code in a V wrapper module here:
-[project_with_c_code](https://github.com/vlang/v/tree/master/vlib/v/tests/project_with_c_code).
+* `voidptr` for C's `void*`,
+* `byteptr` for C's `byte*` and
+* `charptr` for C's `char*`.
+* `&charptr` for C's `char**`
 
 You can use `-cflags` to pass custom flags to the backend C compiler. You can also use `-cc` to change the default C backend compiler.
 For example: `-cc gcc-9 -cflags -fsanitize=thread`.
@@ -2132,8 +2152,8 @@ Ordinary zero terminated C strings can be converted to V strings with `string(cs
 NB: Each `string(...)` function does NOT create a copy of the `cstring`, so you should NOT free it after calling `string()`. If you need to make a copy of the C string (some libc APIs like `getenv` pretty much require that, since they
 return pointers to internal libc memory), you can use `cstring_to_vstring(cstring)`.
 
-On Windows, C APIs often return so called `wide` strings (utf16 encoding).
-These can be converted to V strings with `string_from_wide(&u16(cwidestring))` .
+* `-cg` - produces a less optimized executable with more debug information in it.
+* `-showcc` - prints the C command that is used to build the program.
 
 V has these types for easier interoperability with C:
 
@@ -2168,21 +2188,23 @@ To see a detailed list of all flags that V supports, use `v help`, `v help build
 ```v
 $if windows {
     println('Windows')
-}
-$if linux {
-    println('Linux')
-}
-$if macos {
-    println('macOS')
-}
-
-$if debug {
+* `@FN` => replaced with the name of the current V function
+* `@MOD` => replaced with the name of the current V module
+* `@STRUCT` => replaced with the name of the current V struct
+* `@FILE` => replaced with the path of the V source file
+* `@LINE` => replaced with the V line number where it appears (as a string).
+* `@COLUMN` => replaced with the column where it appears (as a string).
+* `@VEXE` => replaced with the path to the V compiler
+* `@VHASH`  => replaced with the shortened commit hash of the V compiler (as a string).
+* `@VMOD_FILE` => replaced with the contents of the nearest v.mod file (as a string).
     println('debugging')
 }
+
 ```
 
 If you want an `if` to be evaluated at compile time it must be prefixed with a `$` sign. Right now it can only be used to detect
 an OS or a `-debug` compilation option.
+
 
 ## Compile time pseudo variables
 
@@ -2282,10 +2304,10 @@ fn (a Vec) + (b Vec) Vec {
 }
 
 fn (a Vec) - (b Vec) Vec {
-    return Vec {
-        a.x - b.x,
-        a.y - b.y
-    }
+* It's only possible to overload `+, -, *, /, %` operators.
+* Calling other functions inside operator functions is not allowed.
+* Operator functions can't modify their arguments.
+* Both arguments must have the same type (just like with all operators in V).
 }
 
 fn main() {
@@ -2342,9 +2364,9 @@ int main() {
         s.push_back("awesome");
         std::cout << s.size() << std::endl;
         return 0;
-}
-```
-
+* If you plan to develop that code base, you now have everything in one language, which is much safer and easier to develop in than C.
+* Cross-compilation becomes a lot easier. You don't have to worry about it at all.
+* No more build flags and include files either.
 Run `v translate test.cpp` and V will generate `test.v`:
 
 ```v
@@ -2479,11 +2501,10 @@ fn old_function() {}
 fn inlined_function() {}
 
 // The following struct can only be used as a reference (`&Window`) and allocated on the heap.
-[ref_only]
-struct Window {
+## Appendices
 }
 
-// V will not generate this function and all its calls if the provided flag is false.
+### Appendix I: Keywords
 // To use a flag, use `v -d flag`
 [if debug]
 fn foo() { }
@@ -2518,8 +2539,9 @@ defer
 else
 enum
 false
+
 fn
-for
+### Appendix II: Operators
 go
 goto
 if
